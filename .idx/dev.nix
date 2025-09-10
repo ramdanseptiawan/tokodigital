@@ -8,7 +8,18 @@
     pkgs.php82
     pkgs.php82Packages.composer
     pkgs.nodejs_20
+    pkgs.mysql
   ];
+
+  services = {
+    mysql = {
+      enable = true;
+      # Path socket MySQL
+      # socket = "mysql/data/mysql.sock";
+      # Config file jika diperlukan bisa ditambahkan disini
+      # config = ./mysql/my.cnf;
+    };
+  };
   # Sets environment variables in the workspace
   env = {};
   idx = {

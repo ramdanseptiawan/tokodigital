@@ -1,0 +1,10 @@
+[phases.install]
+cmds = [
+  "composer install --no-dev --prefer-dist --no-interaction --no-ansi --no-progress"
+]
+
+[start]
+# Laravel punya server.php untuk router bawaan php -S
+# Kalau file server.php ada di ROOT proyek Laravel lama: pakai itu.
+# Kalau tidak ada, pakai index.php di public (juga jalan).
+cmd = "bash -lc 'if [ -f server.php ]; then php -S 0.0.0.0:${PORT:-3000} server.php; else php -S 0.0.0.0:${PORT:-3000} -t public public/index.php; fi'"
