@@ -33,12 +33,29 @@ class MidtransWebhookController extends Controller
         $statusObj = $mid->getStatus($payload['order_id']);
         $trxStatus = $statusObj->transaction_status ?? $payload['transaction_status'] ?? 'pending';
 
+        // Map Midtrans status to our application status
+        $mappedStatus = $this->mapMidtransStatus($trxStatus);
+
         // update order
         if ($order = Order::where('order_id', $payload['order_id'])->first()) {
-            $order->status = $trxStatus;
+            $order->status = $mappedStatus;
             $order->save();
         }
 
         return response()->json(['received' => true], 200);
+    }
+
+    /**
+     * Map Midtrans transaction status to application status
+     */
+    private function mapMidtransStatus(string $midtransStatus): string
+    {
+        return match ($midtransStatus) {
+            'settlement', 'capture' => 'paid',
+            'pending' => 'pending',
+            'expire' => 'expire',
+            'cancel', 'deny', 'failure' => 'cancel',
+            default => $midtransStatus,
+        };
     }
 }
