@@ -16,7 +16,7 @@
           <span class="sm:hidden">📦</span>
         </a>
         <a href="{{ route('cart.index') }}" class="text-gray-600 hover:text-gray-900 relative text-sm sm:text-base transition-colors duration-200">
-          <span class="hidden sm:inline">Cart</span>
+          <span class="hidden sm:inline">Cart 🛒</span>
           <span class="sm:hidden">🛒</span>
           <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden"></span>
         </a>

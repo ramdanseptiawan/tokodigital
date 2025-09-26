@@ -86,7 +86,7 @@
                 
                 <div class="mt-4 text-center">
                     <a href="{{ route('cart.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">
-                        ← Kembali ke Keranjang
+                        ← Kembali ke 🛒 Keranjang
                     </a>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 <x-layouts.app title="Keranjang - Digital Store">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-semibold">Keranjang Belanja</h1>
+      <h1 class="text-2xl font-semibold">🛒 Keranjang Belanja</h1>
       @if($cartItems->count() > 0)
         <span class="bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full">
           {{ $cartItems->sum('quantity') }} item{{ $cartItems->sum('quantity') > 1 ? 's' : '' }}
@@ -81,7 +81,7 @@
     @else
       <div class="text-center py-12">
         <div class="text-6xl mb-4">🛒</div>
-        <h2 class="text-xl font-semibold mb-2">Keranjang Kosong</h2>
+        <h2 class="text-xl font-semibold mb-2">🛒 Keranjang Kosong</h2>
         <p class="text-slate-600 mb-6">Belum ada produk di keranjang Anda</p>
         <a href="{{ route('products.index') }}" 
            class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg px-6 py-2">
