@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Services\MidtransService;
 use App\Models\Order;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PaymentSuccessful;
+use App\Mail\PaymentPending;
 
 class MidtransWebhookController extends Controller
 {
@@ -38,11 +41,46 @@ class MidtransWebhookController extends Controller
 
         // update order
         if ($order = Order::where('order_id', $payload['order_id'])->first()) {
+            $oldStatus = $order->status;
             $order->status = $mappedStatus;
             $order->save();
+
+            // Send email notifications based on status change
+            $this->sendEmailNotification($order, $oldStatus, $mappedStatus);
         }
 
         return response()->json(['received' => true], 200);
+    }
+
+    /**
+     * Send email notification based on payment status
+     */
+    private function sendEmailNotification(Order $order, string $oldStatus, string $newStatus): void
+    {
+        try {
+            // Only send email if status actually changed
+            if ($oldStatus === $newStatus) {
+                return;
+            }
+
+            // Send email based on new status
+            switch ($newStatus) {
+                case 'paid':
+                    Mail::to($order->customer_email)->send(new PaymentSuccessful($order));
+                    Log::info("Payment successful email sent to {$order->customer_email} for order {$order->order_id}");
+                    break;
+                    
+                case 'pending':
+                    // Only send pending email if it's a new order or status changed from failed/cancelled
+                    if (in_array($oldStatus, ['failed', 'cancelled', 'expire']) || $oldStatus === null) {
+                        Mail::to($order->customer_email)->send(new PaymentPending($order));
+                        Log::info("Payment pending email sent to {$order->customer_email} for order {$order->order_id}");
+                    }
+                    break;
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to send email notification for order {$order->order_id}: " . $e->getMessage());
+        }
     }
 
     /**

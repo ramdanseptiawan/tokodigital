@@ -13,5 +13,6 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         'midtrans/notify', // endpoint untuk webhook Midtrans
+        'storage/*', // endpoint untuk akses file storage
     ];
 }

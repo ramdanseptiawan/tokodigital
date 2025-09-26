@@ -12,7 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->trustProxies(at: [
+            \App\Http\Middleware\TrustProxies::class,
+        ]);
+        
+        // Tambahkan SecureHeaders middleware untuk semua request
+        $middleware->append(\App\Http\Middleware\SecureHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

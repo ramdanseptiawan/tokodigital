@@ -12,6 +12,8 @@ use App\Services\MidtransService;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PaymentPending;
 
 class CartCheckoutController extends Controller
 {
@@ -139,6 +141,22 @@ class CartCheckoutController extends Controller
             // Hapus cart items setelah berhasil checkout
             CartItem::where('session_id', $sessionId)->delete();
 
+            // Kirim email notifikasi pending payment
+            try {
+                $orderWithItems = $order->load('orderItems.product');
+                Mail::to($order->customer_email)->send(new PaymentPending($orderWithItems));
+                Log::info('Email pending payment sent successfully', [
+                    'order_id' => $order->order_id,
+                    'email' => $order->customer_email
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send pending payment email', [
+                    'order_id' => $order->order_id,
+                    'email' => $order->customer_email,
+                    'error' => $e->getMessage()
+                ]);
+            }
+
             DB::commit();
 
             return redirect()->route('orders.show', $order);
@@ -211,6 +229,22 @@ class CartCheckoutController extends Controller
                 'qr_url'    => $qr->url ?? null,
                 'qr_string' => $resp->qr_string ?? ($resp->qris ?? null),
             ]);
+
+            // Kirim email notifikasi pending payment untuk single product
+            try {
+                $orderWithItems = $order->load('orderItems.product');
+                Mail::to($order->customer_email)->send(new PaymentPending($orderWithItems));
+                Log::info('Email pending payment sent successfully (single product)', [
+                    'order_id' => $order->order_id,
+                    'email' => $order->customer_email
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send pending payment email (single product)', [
+                    'order_id' => $order->order_id,
+                    'email' => $order->customer_email,
+                    'error' => $e->getMessage()
+                ]);
+            }
 
             DB::commit();
 

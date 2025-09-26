@@ -7,6 +7,9 @@ use Illuminate\Support\Str;
 use App\Models\Game;            // <-- penting
 use App\Models\Order;           // <-- penting
 use App\Services\MidtransService; // <-- penting
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PaymentPending;
+use Illuminate\Support\Facades\Log;
 
 
 class CheckoutController extends Controller
@@ -54,6 +57,23 @@ class CheckoutController extends Controller
             'qr_url'    => $qr->url ?? null,
             'qr_string' => $resp->qr_string ?? ($resp->qris ?? null),
         ]);
+
+        // Kirim email notifikasi pending payment untuk game
+        try {
+            // Untuk game checkout, kita perlu membuat struktur yang kompatibel dengan email template
+            // Karena game menggunakan struktur berbeda dari product, kita perlu menyesuaikan
+            Mail::to($order->customer_email)->send(new PaymentPending($order));
+            Log::info('Email pending payment sent successfully (game)', [
+                'order_id' => $order->order_id,
+                'email' => $order->customer_email
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send pending payment email (game)', [
+                'order_id' => $order->order_id,
+                'email' => $order->customer_email,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         return redirect()->route('orders.show', $order);
     }

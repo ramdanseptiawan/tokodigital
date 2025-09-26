@@ -8,6 +8,29 @@ use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CartCheckoutController;
+use App\Http\Controllers\StorageController;
+
+// Storage routes - serve files from storage/app/public
+Route::get('/storage/products/{filename}', function($filename) {
+    $filePath = storage_path('app/public/products/' . $filename);
+    
+    if (!file_exists($filePath)) {
+        return response()->json(['error' => 'File not found'], 404);
+    }
+    
+    return response()->file($filePath);
+})->name('storage.products');
+
+// General storage route for other directories
+Route::get('/storage/{directory}/{filename}', function($directory, $filename) {
+    $filePath = storage_path('app/public/' . $directory . '/' . $filename);
+    
+    if (!file_exists($filePath)) {
+        return response()->json(['error' => 'File not found'], 404);
+    }
+    
+    return response()->file($filePath);
+})->name('storage.general');
 
 // Redirect root to products
 Route::get('/', function () {
