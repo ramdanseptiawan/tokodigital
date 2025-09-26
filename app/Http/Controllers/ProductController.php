@@ -16,9 +16,9 @@ class ProductController extends Controller
             $query->ofType($request->type);
         }
         
-        // Search berdasarkan nama
+        // Search berdasarkan nama (case-insensitive)
         if ($request->has('search') && $request->search) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'ILIKE', '%' . $request->search . '%');
         }
         
         $products = $query->orderBy('created_at', 'desc')->paginate(12);
